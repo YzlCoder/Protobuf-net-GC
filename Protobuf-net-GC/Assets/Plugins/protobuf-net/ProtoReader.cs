@@ -57,7 +57,7 @@ namespace ProtoBuf
             Init(this, source, model, context, TO_EOF);
         }
 
-        internal const int TO_EOF = -1;
+        public const int TO_EOF = -1;
         
         
         /// <summary>
@@ -1281,7 +1281,7 @@ namespace ProtoBuf
             return TypeModel.DeserializeType(model, value);
         }
 
-        internal void SetRootObject(object value)
+        public void SetRootObject(object value)
         {
             netCache.SetKeyedObject(NetObjectCache.Root, value);
             trapCount--;
@@ -1315,7 +1315,7 @@ namespace ProtoBuf
             netCache.SetKeyedObject(newObjectKey, null); // use null as a temp
         }
 
-        internal void CheckFullyConsumed()
+        public void CheckFullyConsumed()
         {
             if (isFixedLength)
             {
@@ -1347,7 +1347,7 @@ namespace ProtoBuf
 
 #region RECYCLER
 
-        internal static ProtoReader Create(Stream source, TypeModel model, SerializationContext context, int len)
+        public static ProtoReader Create(Stream source, TypeModel model, SerializationContext context, int len)
         {
             ProtoReader reader = GetRecycled();
             if (reader == null)
@@ -1368,7 +1368,7 @@ namespace ProtoBuf
             lastReader = null;
             return tmp;
         }
-        internal static void Recycle(ProtoReader reader)
+        public static void Recycle(ProtoReader reader)
         {
             if(reader != null)
             {

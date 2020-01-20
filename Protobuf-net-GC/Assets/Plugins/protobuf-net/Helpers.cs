@@ -19,7 +19,7 @@ namespace ProtoBuf
     /// otherwise make the real code unnecessarily messy, providing fallback
     /// implementations if necessary.
     /// </summary>
-    internal sealed class Helpers
+    public sealed class Helpers
     {
         private Helpers() { }
 
@@ -638,7 +638,7 @@ namespace ProtoBuf
     /// - with missing types
     /// - existing on WinRT
     /// </summary>
-    internal enum ProtoTypeCode
+    public enum ProtoTypeCode
     {
         Empty = 0,
         Unknown = 1, // maps to TypeCode.Object
