@@ -1,0 +1,111 @@
+#if UNITY_EDITOR
+//-----------------------------------------------------------------------
+// <copyright file="OdinMenuTreeDrawingConfig.cs" company="Sirenix IVS">
+// Copyright (c) Sirenix IVS. All rights reserved.
+// </copyright>
+//-----------------------------------------------------------------------
+namespace Sirenix.OdinInspector.Editor
+{
+    using System;
+    using Sirenix.Utilities;
+    using UnityEngine;
+    using System.Linq;
+
+    /// <summary>
+    /// The config used by OdinMenuTree to specify which features of the Menu Tree should be used when drawing.
+    /// </summary>
+    [Serializable]
+    public class OdinMenuTreeDrawingConfig
+    {
+        private Func<OdinMenuItem, bool> searchFunction;
+
+        [SerializeField]
+        private OdinMenuStyle menuItemStyle;
+
+        /// <summary>
+        /// Gets or sets the default menu item style.
+        /// </summary>
+        public OdinMenuStyle DefaultMenuStyle
+        {
+            get
+            {
+                if (this.menuItemStyle == null)
+                {
+                    this.menuItemStyle = new OdinMenuStyle();
+                }
+
+                return this.menuItemStyle;
+            }
+            set
+            {
+                this.menuItemStyle = value;
+            }
+        }
+
+        /// <summary>
+        /// The automatic scroll on selection changed. True by default.
+        /// </summary>
+        public bool AutoScrollOnSelectionChanged = true;
+
+        /// <summary>
+        /// Whether to draw the tree in a scrollable view. True by default.
+        /// </summary>
+        public bool DrawScrollView = true;
+
+        /// <summary>
+        /// Whether to handle keyboard navigation after it's done drawing. True by default.
+        /// </summary>
+        public bool AutoHandleKeyboardNavigation = true;
+
+        /// <summary>
+        /// Whether to draw a searchbar above the menu tree. True by default.
+        /// </summary>
+        public bool DrawSearchToolbar = true;
+
+        /// <summary>
+        /// Whether to automatically set focus on the search bar when the tree is drawn for the first time. True by default.
+        /// </summary>
+        public bool AutoFocusSearchBar = true;
+
+        /// <summary>
+        /// The scroll-view position.
+        /// </summary>
+        public Vector2 ScrollPos = new Vector2();
+
+        /// <summary>
+        /// The search term.
+        /// </summary>
+        public string SearchTerm = "";
+
+        /// <summary>
+        /// The height of the search toolbar.
+        /// </summary>
+        public int SearchToolbarHeight = 24;
+
+        /// <summary>
+        /// Gets or sets the search function.
+        /// </summary>
+        public Func<OdinMenuItem, bool> SearchFunction
+        {
+            get
+            {
+                if (this.searchFunction == null)
+                {
+                    this.searchFunction = x =>
+                    {
+                        // @NiceToHave Abrivation search
+                        return x.ObjectInstance != null && (x.SearchString ?? "").Contains(this.SearchTerm, StringComparison.InvariantCultureIgnoreCase);
+                    };
+                }
+
+                return this.searchFunction;
+            }
+            set
+            {
+                this.searchFunction = value;
+            }
+        }
+
+    }
+}
+#endif
