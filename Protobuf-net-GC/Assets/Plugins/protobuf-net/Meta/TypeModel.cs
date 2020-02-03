@@ -2,6 +2,7 @@
 using System.IO;
 
 using System.Collections;
+using System.Collections.Generic;
 #if FEAT_IKVM
 using Type = IKVM.Reflection.Type;
 using IKVM.Reflection;
@@ -207,9 +208,9 @@ namespace ProtoBuf.Meta
         /// </summary>
         /// <param name="value">The existing instance to be serialized (cannot be null).</param>
         /// <param name="dest">The destination stream to write to.</param>
-        public void Serialize(Stream dest, object value)
+        public void Serialize(Stream dest, object value, List<UnityEngine.Object> unityRef = null)
         {
-            Serialize(dest, value, null);
+            Serialize(dest, value, null, unityRef);
         }
         /// <summary>
         /// Writes a protocol-buffer representation of the given instance to the supplied stream.
@@ -217,12 +218,12 @@ namespace ProtoBuf.Meta
         /// <param name="value">The existing instance to be serialized (cannot be null).</param>
         /// <param name="dest">The destination stream to write to.</param>
         /// <param name="context">Additional information about this serialization operation.</param>
-        public void Serialize(Stream dest, object value, SerializationContext context)
+        public void Serialize(Stream dest, object value, SerializationContext context, List<UnityEngine.Object> unityRef = null)
         {
 #if FEAT_IKVM
             throw new NotSupportedException();
 #else
-            using (ProtoWriter writer = new ProtoWriter(dest, this, context))
+            using (ProtoWriter writer = new ProtoWriter(dest, this, context, unityRef))
             {
                 writer.SetRootObject(value);
                 SerializeCore(writer, value);
@@ -572,9 +573,9 @@ namespace ProtoBuf.Meta
         /// <returns>The updated instance; this may be different to the instance argument if
         /// either the original instance was null, or the stream defines a known sub-type of the
         /// original instance.</returns>
-        public object Deserialize(Stream source, object value, System.Type type)
+        public object Deserialize(Stream source, object value, System.Type type, List<UnityEngine.Object> unityRef = null)
         {
-            return Deserialize(source, value, type, null);
+            return Deserialize(source, value, type, null, unityRef);
         }
         /// <summary>
         /// Applies a protocol-buffer stream to an existing instance (which may be null).
@@ -586,7 +587,7 @@ namespace ProtoBuf.Meta
         /// either the original instance was null, or the stream defines a known sub-type of the
         /// original instance.</returns>
         /// <param name="context">Additional information about this serialization operation.</param>
-        public object Deserialize(Stream source, object value, System.Type type, SerializationContext context)
+        public object Deserialize(Stream source, object value, System.Type type, SerializationContext context, List<UnityEngine.Object> unityRef = null)
         {
 #if FEAT_IKVM
             throw new NotSupportedException();
@@ -595,7 +596,7 @@ namespace ProtoBuf.Meta
             ProtoReader reader = null;
             try
             {
-                reader = ProtoReader.Create(source, this, context, ProtoReader.TO_EOF);
+                reader = ProtoReader.Create(source, this, context, ProtoReader.TO_EOF, unityRef);
                 if (value != null) reader.SetRootObject(value);
                 object obj = DeserializeCore(reader, type, value, autoCreate);
                 reader.CheckFullyConsumed();

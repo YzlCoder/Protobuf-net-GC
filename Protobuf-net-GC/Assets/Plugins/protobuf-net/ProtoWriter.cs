@@ -3,6 +3,8 @@
 using System.IO;
 using System.Text;
 using ProtoBuf.Meta;
+using System.Collections.Generic;
+
 #if MF
 using OverflowException = System.ApplicationException;
 #endif
@@ -22,6 +24,10 @@ namespace ProtoBuf
     public sealed class ProtoWriter : IDisposable
     {
         private Stream dest;
+
+        /* add to write unityreference */
+        private List<UnityEngine.Object> unityReferences;
+
         TypeModel model;
         /// <summary>
         /// Write an encapsulated sub-object, using the supplied unique key (reprasenting a type).
@@ -447,7 +453,7 @@ namespace ProtoBuf
         /// <param name="dest">The destination stream</param>
         /// <param name="model">The model to use for serialization; this can be null, but this will impair the ability to serialize sub-objects</param>
         /// <param name="context">Additional context about this serialization operation</param>
-        public ProtoWriter(Stream dest, TypeModel model, SerializationContext context)
+        public ProtoWriter(Stream dest, TypeModel model, SerializationContext context, List<UnityEngine.Object> unityRef = null)
         {
             if (dest == null) throw new ArgumentNullException("dest");
             if (!dest.CanWrite) throw new ArgumentException("Cannot write to stream", "dest");
@@ -459,7 +465,7 @@ namespace ProtoBuf
             if (context == null) { context = SerializationContext.Default; }
             else { context.Freeze(); }
             this.context = context;
-            
+            this.unityReferences = unityRef;
         }
 
         private readonly SerializationContext context;
@@ -712,6 +718,20 @@ namespace ProtoBuf
                     throw CreateException(writer);
             }
         }
+
+        public static void WriteUnityObject(ProtoWriter writer, UnityEngine.Object obj)
+        {
+            if (writer == null) throw new ArgumentNullException("writer");
+            if (writer.unityReferences == null) throw new Exception("unityReferences is null");
+            int index = writer.unityReferences.IndexOf(obj);
+            if(index < 0)
+            {
+                writer.unityReferences.Add(obj);
+                index = writer.unityReferences.Count - 1;
+            }
+            ProtoWriter.WriteInt32(index, writer);
+        }
+
 
 
         /// <summary>

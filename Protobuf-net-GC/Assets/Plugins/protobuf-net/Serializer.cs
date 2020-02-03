@@ -72,9 +72,9 @@ namespace ProtoBuf
         /// <typeparam name="T">The type to be created.</typeparam>
         /// <param name="source">The binary stream to apply to the new instance (cannot be null).</param>
         /// <returns>A new, initialized instance.</returns>
-        public static T Deserialize<T>(Stream source)
+        public static T Deserialize<T>(Stream source, List<UnityEngine.Object> unityRef = null)
         {
-            return (T) RuntimeTypeModel.Default.Deserialize(source, null, typeof(T));
+            return (T) RuntimeTypeModel.Default.Deserialize(source, null, typeof(T), unityRef);
         }
         /// <summary>
 		/// Creates a new instance from a protocol-buffer stream
@@ -82,19 +82,19 @@ namespace ProtoBuf
 		/// <param name="type">The type to be created.</param>
 		/// <param name="source">The binary stream to apply to the new instance (cannot be null).</param>
 		/// <returns>A new, initialized instance.</returns>
-		public static object Deserialize(System.Type type, Stream source)
+		public static object Deserialize(System.Type type, Stream source, List<UnityEngine.Object> unityRef = null)
 		{
-			return RuntimeTypeModel.Default.Deserialize(source, null, type);
+			return RuntimeTypeModel.Default.Deserialize(source, null, type, unityRef);
 		}
         /// <summary>
         /// Writes a protocol-buffer representation of the given instance to the supplied stream.
         /// </summary>
         /// <param name="instance">The existing instance to be serialized (cannot be null).</param>
         /// <param name="destination">The destination stream to write to.</param>
-        public static void Serialize<T>(Stream destination, T instance)
+        public static void Serialize<T>(Stream destination, T instance, List<UnityEngine.Object> unityRef = null)
         {
             if(instance != null) {
-                RuntimeTypeModel.Default.Serialize(destination, instance);
+                RuntimeTypeModel.Default.Serialize(destination, instance, unityRef);
             }
         }
         /// <summary>

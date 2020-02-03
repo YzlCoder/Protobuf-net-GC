@@ -409,6 +409,7 @@ namespace ProtoBuf.Meta
             {
                 return new TagDecorator(ProtoBuf.Serializer.ListItemTag, WireType.Variant, false, new EnumSerializer(type, GetEnumMap()));
             }
+
             Type itemType = IgnoreListHandling ? null : TypeModel.GetListItemType(model, type);
             if (itemType != null)
             {

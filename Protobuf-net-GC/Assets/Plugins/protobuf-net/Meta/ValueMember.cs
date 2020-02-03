@@ -320,6 +320,9 @@ namespace ProtoBuf.Meta
                 WireType wireType;
                 Type finalType = itemType == null ? memberType : itemType;
                 IProtoSerializer ser = TryGetCoreSerializer(model, dataFormat, finalType, out wireType, asReference, dynamicType, OverwriteList, true);
+
+                Extension.CustomSerializerReg.TryGetSerializer(finalType, ref ser, ref wireType);
+
                 if (ser == null)
                 {
                     throw new InvalidOperationException("No serializer defined for type: " + finalType.FullName);

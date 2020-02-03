@@ -2,12 +2,21 @@
 using System.IO;
 using ProtoBuf;
 using ProtoBuf.Meta;
+using System;
+public interface ICustomProtoSerializer
+{
+    void SetValue(object target, object value, int fieldNumber);
 
+    object GetValue(object target, int fieldNumber);
+}
 
 public static partial class ProtoSerialize
 {
-    
-    
+    public static ICustomProtoSerializer TryGetCustomSerializer(Type targetType)
+    {
+        return null;
+    }
+
     private static class ProtoSerializeReg<T> where T : new()
     {
         public delegate T DeserializeFun(Stream stream);

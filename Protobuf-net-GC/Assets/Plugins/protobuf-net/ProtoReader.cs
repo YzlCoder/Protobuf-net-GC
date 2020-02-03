@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Text;
 using ProtoBuf.Meta;
+using System.Collections.Generic;
 
 #if FEAT_IKVM
 using Type = IKVM.Reflection.Type;
@@ -30,6 +31,9 @@ namespace ProtoBuf
         bool isFixedLength, internStrings;
         private NetObjectCache netCache;
 
+        /* add to write unityreference */
+        private List<UnityEngine.Object> unityReferences;
+
         // this is how many outstanding objects do not currently have
         // values for the purposes of reference tracking; we'll default
         // to just trapping the root object
@@ -52,9 +56,9 @@ namespace ProtoBuf
         /// <param name="source">The source stream</param>
         /// <param name="model">The model to use for serialization; this can be null, but this will impair the ability to deserialize sub-objects</param>
         /// <param name="context">Additional context about this serialization operation</param>
-        public ProtoReader(Stream source, TypeModel model, SerializationContext context) 
+        public ProtoReader(Stream source, TypeModel model, SerializationContext context, List<UnityEngine.Object> unityRef = null) 
         {
-            Init(this, source, model, context, TO_EOF);
+            Init(this, source, model, context, TO_EOF, unityRef);
         }
 
         public const int TO_EOF = -1;
@@ -75,12 +79,12 @@ namespace ProtoBuf
         /// <param name="model">The model to use for serialization; this can be null, but this will impair the ability to deserialize sub-objects</param>
         /// <param name="context">Additional context about this serialization operation</param>
         /// <param name="length">The number of bytes to read, or -1 to read until the end of the stream</param>
-        public ProtoReader(Stream source, TypeModel model, SerializationContext context, int length)
+        public ProtoReader(Stream source, TypeModel model, SerializationContext context, int length, List<UnityEngine.Object> unityRef = null)
         {
-            Init(this, source, model, context, length);
+            Init(this, source, model, context, length, unityRef);
         }
 
-        private static void Init(ProtoReader reader, Stream source, TypeModel model, SerializationContext context, int length)
+        private static void Init(ProtoReader reader, Stream source, TypeModel model, SerializationContext context, int length, List<UnityEngine.Object> unityRef = null)
         {
             if (source == null) throw new ArgumentNullException("source");
             if (!source.CanRead) throw new ArgumentException("Cannot read from stream", "source");
@@ -99,7 +103,8 @@ namespace ProtoBuf
             reader.internStrings = true;
             reader.wireType = WireType.None;
             reader.trapCount = 1;
-            if(reader.netCache == null) reader.netCache = new NetObjectCache();            
+            if(reader.netCache == null) reader.netCache = new NetObjectCache();
+            reader.unityReferences = unityRef;
         }
 
         private SerializationContext context;
@@ -594,6 +599,17 @@ namespace ProtoBuf
             return value;
         }
 #endif
+
+        public static UnityEngine.Object ReadUnityObject(ProtoReader reader)
+        {
+            int index = (int)reader.ReadInt32();
+            if (reader.unityReferences != null && index < reader.unityReferences.Count)
+            {
+                return reader.unityReferences[index];
+            }
+            return null;
+        }
+
 
         /// <summary>
         /// Makes the end of consuming a nested message in the stream; the stream must be either at the correct EndGroup
@@ -1347,14 +1363,14 @@ namespace ProtoBuf
 
 #region RECYCLER
 
-        public static ProtoReader Create(Stream source, TypeModel model, SerializationContext context, int len)
+        public static ProtoReader Create(Stream source, TypeModel model, SerializationContext context, int len, List<UnityEngine.Object> unityRef = null)
         {
             ProtoReader reader = GetRecycled();
             if (reader == null)
             {
-                return new ProtoReader(source, model, context, len);
+                return new ProtoReader(source, model, context, len, unityRef);
             }
-            Init(reader, source, model, context, len);
+            Init(reader, source, model, context, len, unityRef);
             return reader;
         }
 
